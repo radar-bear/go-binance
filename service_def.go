@@ -2,8 +2,11 @@ package binance
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net/http"
+	"net/url"
+	"os"
 	"time"
 
 	"github.com/go-kit/kit/log"
@@ -78,11 +81,24 @@ func NewAPIService(url, apiKey string, signer Signer, logger log.Logger, ctx con
 
 func (as *apiService) request(method string, endpoint string, params map[string]string,
 	apiKey bool, sign bool) (*http.Response, error) {
-	var PTransport = & http.Transport {
-		Proxy: http.ProxyFromEnvironment,
+
+	var transport *http.Transport
+	if os.Getenv("BINANCE_PROXY") != "" {
+		proxy, _ := url.Parse(os.Getenv("PROXY"))
+		transport = &http.Transport{
+			Proxy:           http.ProxyURL(proxy),
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			MaxIdleConns:    10,
+			IdleConnTimeout: 15 * time.Second,
+		}
+	} else {
+		transport = &http.Transport{
+			MaxIdleConns:    10,
+			IdleConnTimeout: 15 * time.Second,
+		}
 	}
 	client := &http.Client{
-		Transport: PTransport,
+		Transport: transport,
 	}
 
 	url := fmt.Sprintf("%s/%s", as.URL, endpoint)
