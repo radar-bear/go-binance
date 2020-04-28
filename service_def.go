@@ -84,7 +84,7 @@ func (as *apiService) request(method string, endpoint string, params map[string]
 
 	var transport *http.Transport
 	if os.Getenv("BINANCE_PROXY") != "" {
-		proxy, _ := url.Parse(os.Getenv("PROXY"))
+		proxy, _ := url.Parse(os.Getenv("BINANCE_PROXY"))
 		transport = &http.Transport{
 			Proxy:           http.ProxyURL(proxy),
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
