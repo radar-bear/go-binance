@@ -78,9 +78,11 @@ func NewAPIService(url, apiKey string, signer Signer, logger log.Logger, ctx con
 
 func (as *apiService) request(method string, endpoint string, params map[string]string,
 	apiKey bool, sign bool) (*http.Response, error) {
-	transport := &http.Transport{}
+	var PTransport = & http.Transport {
+		Proxy: http.ProxyFromEnvironment,
+	}
 	client := &http.Client{
-		Transport: transport,
+		Transport: PTransport,
 	}
 
 	url := fmt.Sprintf("%s/%s", as.URL, endpoint)
